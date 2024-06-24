@@ -1,0 +1,75 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p><button class="btn btn-outline-primary" id="google-sign-in-button">Login With Google</button></p>
+</div>
+@section scripts {
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCRatdCYnQD4SXVBIcC7RzAnW_STeMooY",
+            authDomain: "fir-1-social-authentication.firebaseapp.com",
+            projectId: "fir-1-social-authentication",
+            storageBucket: "fir-1-social-authentication.appspot.com",
+            messagingSenderId: "534697837125",
+            appId: "1:534697837125:web:4179b529344bb3373b192c",
+            measurementId: "G-JSPMHQ2EMY"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        console.log(app);
+
+        // Initialize Firebase Auth
+        const auth = getAuth(app);
+
+        // Set up Google provider
+        const googleProvider = new GoogleAuthProvider();
+
+        // Function to sign in with Google using jQuery
+        function signInWithGoogle() {
+            signInWithPopup(auth, googleProvider)
+                .then((result) => {
+                    const idToken = result._tokenResponse.idToken;
+                    // Send the ID token to your .NET Core backend using jQuery AJAX
+                    var settings = {
+                        "url": "http://localhost:10265/Auth/Login",
+                        "method": "POST",
+                        "timeout": 0,
+                        "headers": {
+                            "Content-Type": "application/json"
+                        },
+                        "data": JSON.stringify({
+                            "Token": idToken
+                        }),
+                    };
+                    $.ajax(settings).done(res => {
+                        alert('User logged in successfully.');
+                        console.log(res);
+                    }).fail(xhr => {
+                        alert('SOMETHING WENT WRONG');
+                        console.log(xhr.responseText);
+                    })
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // Handle sign-in error if needed
+                });
+        }
+
+        // Example of how to call the function
+        document.getElementById('google-sign-in-button').addEventListener('click', signInWithGoogle);
+    </script>
+
+}
